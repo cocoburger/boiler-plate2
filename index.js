@@ -7,13 +7,15 @@ const port = 5000
 //유저 정보 등록
 
 const config = require('./config/key');
+const cookieParser  = require('cookie-parser');
+const { auth } = require('./middleware/auth');
+const{ User } = require("./models/User");
 
 //body-parser가 내장되었기 때문에 강의와는 다르게 코드 작성
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
+app.use(cookieParser());
 
-
-const{ User } = require("./models/User");
 
 
 
@@ -31,7 +33,7 @@ app.get('/', (req, res) => {
 
 
 
-app.post('/register', (req, res) =>{
+app.post('/api/users/register', (req, res) =>{
   //회원가입할때 적는 정보들을 client에서 가져오면
   //그 정보들을 데이터 베이스에 넣어준다.
   //인스턴스 생성
@@ -47,6 +49,56 @@ app.post('/register', (req, res) =>{
     })
   }); 
 })
+
+//post방식
+app.post('api/users/login',(req,res) =>{
+
+  //요청된 이메일을 데이터베이스에서 있는지 찾는다.
+  //mongoDB에서 제공하는 함수
+  //몽고DB 인스턴스에서 mongoose 반환 데이터
+  User.findOne({ email: req.body.email  }, (err, user) =>{
+    if(!user){ //해당하는 유저가 없다면
+      return res.json({  //json타입으로 리턴해준다.
+        loginSuccess : false,
+        message : "해당 이메일로 가입된 유저가 없습니다."
+      })
+    }
+  
+  //요청된 이메일이 데이터 베이스에 있다면 비밀번호가 맞는 비밀번호인지 확인해야한다.
+  user.comparePassword(req.body.password, (err, isMatch) =>{
+    if(!isMatch)
+    return res.json({ loginSuccess: false, message: "비밀번호가 틀렸습니다."})
+  
+    //비밀번호 까지 맞다면 토큰을 생성하기.
+    user.generateToken((err, user) =>{
+      if(err) return res.status(400).send(err);
+
+      //토큰을 저장한다. 쿠키 로컬 스토리지에
+        res.cookie("x_auth", user.token).status(200).json({loginSuccess:true, userId : user._id});
+
+      }) 
+    })
+  })
+});
+
+//미들웨어는 값을 받아온뒤에 처리전 중간에 
+app.get('api/users/auth',auth,(req,res) =>{
+
+  //여기 까지 미들웨어를 통과해 왔다는 얘기는 Authentication 라는 말
+  res.status(200).json({
+    _id : req.user._id,
+    isAdmin : req.user.role === 0 ? false : true,
+    isAuth : true,
+    email : req.user.email,
+    name : req.user.name,
+    lastname : req.user.lastname,
+    role: req.user.role,
+    image : req.user.image
+  })
+})
+
+
+
 
 
 //port 5000번에서 실행시켜준다.
