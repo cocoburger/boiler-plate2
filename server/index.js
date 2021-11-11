@@ -31,7 +31,10 @@ app.get('/', (req, res) => {
   res.send('Hello World! ')
 })
 
-
+app.get('/api/hello', (req, res) =>{
+  
+  res.send('안녕하십니까 정상수입니다~~~~~~~~');
+})
 
 app.post('/api/users/register', (req, res) =>{
   //회원가입할때 적는 정보들을 client에서 가져오면
@@ -51,7 +54,7 @@ app.post('/api/users/register', (req, res) =>{
 })
 
 //post방식
-app.post('api/users/login',(req,res) =>{
+app.post('/api/users/login',(req,res) =>{
 
   //요청된 이메일을 데이터베이스에서 있는지 찾는다.
   //mongoDB에서 제공하는 함수
@@ -82,7 +85,7 @@ app.post('api/users/login',(req,res) =>{
 });
 
 //미들웨어는 값을 받아온뒤에 처리전 중간에 
-app.get('api/users/auth',auth,(req,res) =>{
+app.get('/api/users/auth',auth,(req,res) =>{
 
   //여기 까지 미들웨어를 통과해 왔다는 얘기는 Authentication 라는 말
   res.status(200).json({
@@ -95,6 +98,21 @@ app.get('api/users/auth',auth,(req,res) =>{
     role: req.user.role,
     image : req.user.image
   })
+})
+
+
+//로그인된 상태이기 때문에 auth를 넣어준다. 콜백함수
+app.get('/api/users/logout', auth, (req, res) =>{
+
+  //로그아웃을 하려는 유저아이디를 req.user.id로 가져와서
+  //token을 공백값으로 주어 토큰 값을 없앤다.
+  //에러가 발생하면 에러를 보여주고
+  //성공 시에는 true 메세지를 보여준다.
+  User.findOneAndUpdate({_id: req.user._id},
+   {token : ""}, (err,user) =>{
+     if(err) return res.json({ success:false, err});
+     return res.status(200).send({success: true})
+   })
 })
 
 
