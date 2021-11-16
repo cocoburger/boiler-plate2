@@ -1,5 +1,5 @@
 import {
-    LOGIN_USER
+    LOGIN_USER, REGISTER_USER
 }from '../_actions/types';
 
 //reducer는 previous state과 action을 가지고 nextState을 return하니깐 파라미터로 state, action을 받는다.
@@ -12,11 +12,12 @@ export default function (state = {}, action){
     switch(action.type){
         case LOGIN_USER:
                 return{ ...state, loginSuccess:action.payload} 
-        break;
+
+        case REGISTER_USER:
+            return {...state, regiser:action.payload}
 
         default:
             return state;
-            break;
     }
 
 }
