@@ -67,10 +67,7 @@ function LoginPage(props) {
 
                 <br/>
                 <button type="submit">Login</button>
-
-
             </form>
-
         </div>
     )
 }
