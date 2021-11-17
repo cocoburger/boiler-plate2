@@ -35,6 +35,7 @@ export function auth() {
     
     //axios를 request에 지정 -> 결론적으로 response된 data를 request에 저장한다.
     //return을 시켜서 reducer에 보내야한다.
+    //get을 하기 때문에 값을 따로 보내줄 필요가 없다.
     const request = axios.get('/api/users/auth')
     .then(response => response.data)
 

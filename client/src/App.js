@@ -2,8 +2,7 @@ import React from 'react'
 import {
   BrowserRouter as Router,
   Routes,
-  Route,
-  Link
+  Route
 } from "react-router-dom";
 
 import LandingPage from './component/views/LandingPage/LandingPage';
@@ -16,6 +15,8 @@ function App() {
     <div>
       <hr />
 
+
+      {/*만들어준 Auth(HOC)인자값으로 각 페이지를 넣어준다.  */}
 
       <Routes>
         <Route path="/" element={Auth(LandingPage, null) } />
